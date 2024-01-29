@@ -183,6 +183,20 @@ def check_pawn(position, colour):
 #valid knight moves
 def check_knight(position, colour):
     moves_list = []
+    if colour == 'white':
+        opponent_list = black_location
+        ally_list = white_location
+    else:
+        opponent_list = white_location
+        ally_list =black_location
+    #check 8 squares as knights move in l-shape i.e 2squares in one direction, 1 square in another
+    targets = [(1, 2), (1, -2), (2, 1), (2, -1), (-1, 2), (-1, -2), (-2, 1), (-2, -1)]
+    for i in range(8):
+        target = (position[0] + targets[i][0], position[1] + targets[i][1])
+        if target not in ally_list and 0 <= target[0] <= 7 and 0 <= target[1] <=7:
+            moves_list.append(target)
+    return moves_list
+        
 
 # valid bishop moves 
 def check_bishop(position, colour):
@@ -191,6 +205,37 @@ def check_bishop(position, colour):
 #valid rook moves
 def check_rook(position, colour):
     moves_list = []
+    if colour == 'white':
+        opponent_list = black_location
+        ally_list = white_location
+    else:
+        opponent_list = white_location
+        ally_list = black_location
+    for i in range(4): #down, up , right left
+        path = True
+        chain = 1
+        if i == 0:
+            x = 0
+            y = 1
+        elif i == 1:
+            x = 0
+            y = 1
+        elif i == 2:
+            x = 1
+            y = 0
+        else:
+            x = -1
+            y = 0
+        while path:
+            if(position[0] + (chain * x), position[1] + (chain * y))  not in ally_list and \
+                0 <= position[0] + (chain * x) <= 7 and 0 <= position[1] + (chain * y) <= 7:
+                moves_list.append((position[0] + (chain * x), position[1] + (chain * y)))
+                if (position[0] + (chain * x), position[1] + (chain * y)) in opponent_list:
+                    path = False
+                chain += 1
+            else:
+                path = False
+    return moves_list
 
 #valid queen moves
 def check_queen(position, colour):
