@@ -24,8 +24,8 @@ black_pieces = ['rook', 'knight', 'bishop', 'queen', 'king', 'bishop', 'knight',
 black_location = [(0,7), (1,7), (2,7), (3,7), (4,7), (5,7), (6,7), (7,7),
                   (0,6), (1,6), (2,6), (3,6), (4,6), (5,6), (6,6), (7,6)] # black chess pieces' position on the board
 
-captured_white_pieces = [] # white pieces that have been eliminated from the board
-captured_black_pieces = [] # black pieces that have been eliminated from the board
+captured_pieces_white = [] # pieces that have been captured by white
+captured_pieces_black = [] # pieces that have been captured by black
 
 # 0 - white turn no selection : 1 - white turn piece selected : 2 - black turn no selection : 3 - black turn piece selected
 turn_step = 0
@@ -294,6 +294,17 @@ def check_king(position, colour):
         if target not in ally_list and 0 <= target[0] <= 7 and 0 <= target[1] <=7:
             moves_list.append(target)
     return moves_list
+
+# drawing captured pieces on board
+def draw_captured_pieces():
+    for i in range(len(captured_pieces_white)):
+        captured_piece = captured_pieces_white[i]
+        index = piece_list.index(captured_piece)
+        screen.blit(black_images_small[index], (825, 5 + 50 *i))
+    for i in range(len(captured_pieces_black)):
+        captured_piece = captured_pieces_black[i]
+        index = piece_list.index(captured_piece)
+        screen.blit(white_images_small[index], (825, 5 + 50 * i))
     
 
 #check for valid moves  for selected piece:
@@ -324,6 +335,7 @@ while run:
     screen.fill('teal') #Background colour
     draw_board()
     draw_pieces()
+    draw_captured_pieces()
     if selection != 1000:
         moves_valid = check_moves_valid()
         draw_valid(moves_valid)
@@ -345,7 +357,7 @@ while run:
                     white_location[selection] = click_coords
                     if click_coords in black_location:
                         black_piece = black_location.index(click_coords)
-                        captured_white_pieces.append(black_pieces[black_piece])
+                        captured_pieces_white.append(black_pieces[black_piece])
                         black_pieces.pop(black_piece)
                         black_location.pop(black_piece)
                     black_options = check_options(black_pieces, black_location, 'black')
@@ -362,7 +374,7 @@ while run:
                     black_location[selection] = click_coords
                     if click_coords in white_location:
                         white_piece = white_location.index(click_coords)
-                        captured_black_pieces.append(white_pieces[white_piece])
+                        captured_pieces_black.append(white_pieces[white_piece])
                         white_pieces.pop(white_piece)
                         white_location.pop(white_piece)
                     black_options = check_options(black_pieces, black_location, 'black')
