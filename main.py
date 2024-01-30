@@ -7,6 +7,7 @@ height = 900 #defines the height of the board
 screen = pygame.display.set_mode([width, height])
 pygame.display.set_caption('C.N.C Chess game')
 font = pygame.font.Font('freesansbold.ttf', 35) #defines type of font and font size
+medium_font = pygame.font.Font('freesansbold.ttf', 35)
 big_font = pygame.font.Font('freesansbold.ttf', 54)
 timer = pygame.time.Clock()
 fps = 90 #number of frames per second
@@ -102,6 +103,7 @@ def draw_board():
         for i in range(9):
             pygame.draw.line(screen, 'black', (0, 100 * i), (800, 100 * i), 2)
             pygame.draw.line(screen, 'black', (100 * i, 0), (100 * i , 800), 2)
+        screen.blit(medium_font.render('FOREFEIT', True, 'black'), (810, 810))
 
 
 # Drawing pieces on the board
@@ -305,7 +307,7 @@ def draw_captured_pieces():
     for i in range(len(captured_pieces_black)):
         captured_piece = captured_pieces_black[i]
         index = piece_list.index(captured_piece)
-        screen.blit(white_images_small[index], (825, 5 + 50 * i))
+        screen.blit(white_images_small[index], (925, 5 + 50 * i))
     
 
 #check for valid moves  for selected piece:
@@ -383,6 +385,8 @@ while run:
             y_coords = event.pos[1] // 100
             click_coords = (x_coords, y_coords)
             if turn_step <= 1:
+                if click_coords == (8, 8) or click_coords == (9, 8):
+                    winner = 'black'
                 if click_coords in white_location:
                     selection = white_location.index(click_coords)
                     if turn_step == 0:
@@ -402,6 +406,8 @@ while run:
                     selection = 1000
                     moves_valid = []
             if turn_step > 1:
+                if click_coords == (8, 8) or click_coords == (9, 8):
+                    winner = 'white'
                 if click_coords in black_location:
                     selection = black_location.index(click_coords)
                     if turn_step == 2:
