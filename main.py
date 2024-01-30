@@ -80,7 +80,7 @@ black_images_small = [black_king_small, black_queen_small, black_rook_small, bla
 piece_list = ['king', 'queen', 'rook', 'bishop', 'knight', 'pawn']
 
 #check variables flashing counter
-
+counter = 0
 
 
 # Drawing chess board
@@ -326,16 +326,41 @@ def draw_valid(moves):
     for i in range(len(moves)):
         pygame.draw.circle(screen, colour, (moves[i][0] * 100 + 50, moves[i][1] * 100 + 50),5)
 
+# checks if king is in check 
+def draw_check():
+    if turn_step < 2:
+        king_index = white_pieces.index('king')
+        king_location = white_location[king_index]
+        for i in range(len(black_options)):
+            if king_location in black_options[i]:
+                if counter < 15:
+                    pygame.draw.rect(screen, 'dark red', [white_location[king_index][0] * 100 +1,\
+                                                          white_location[king_index][1] * 100 + 1, 100, 100], 5)                   
+    else:
+        king_index = black_pieces.index('king')
+        king_location = black_location[king_index]
+        for i in range(len(white_options)):
+            if king_location in white_options[i]:
+                if counter < 15:
+                    pygame.draw.rect(screen, 'dark red', [black_location[king_index][0] * 100 +1,\
+                                                          black_location[king_index][1] * 100 + 1, 100, 100], 5)
+
+
 # main game loop C.N.C
 black_options = check_options(black_pieces, black_location, 'black')
 white_options = check_options(white_pieces, white_location, 'white')
 run = True
 while run:
     timer.tick(fps)
+    if counter < 30:
+        counter += 1
+    else:
+        counter = 0
     screen.fill('teal') #Background colour
     draw_board()
     draw_pieces()
     draw_captured_pieces()
+    draw_check()
     if selection != 1000:
         moves_valid = check_moves_valid()
         draw_valid(moves_valid)
