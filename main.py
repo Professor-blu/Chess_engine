@@ -252,7 +252,7 @@ def check_rook(position, colour):
             y = 1
         elif i == 1:
             x = 0
-            y = 1
+            y = -1
         elif i == 2:
             x = 1
             y = 0
@@ -272,11 +272,29 @@ def check_rook(position, colour):
 
 #valid queen moves
 def check_queen(position, colour):
-    moves_list = []
+    moves_list = check_bishop(position, colour)
+    rook_list = check_rook(position, colour)
+    for i in range(len(rook_list)):
+        moves_list.append(rook_list[i])
+    return moves_list
 
 #valid king moves
 def check_king(position, colour):
     moves_list = []
+    if colour == 'white':
+        opponent_list = black_location
+        ally_list = white_location
+    else:
+        opponent_list = white_location
+        ally_list = black_location
+    #8 squares to check for king to move as it can move one square in any direction
+    targets = [(1, 0), (1, 1), (1, -1), (-1, 0), (-1, 1), (-1, -1), (0, 1), (0, -1)]
+    for i in range(8):
+        target = (position[0] + targets[i][0], position[1] + targets[i][1])
+        if target not in ally_list and 0 <= target[0] <= 7 and 0 <= target[1] <=7:
+            moves_list.append(target)
+    return moves_list
+    
 
 #check for valid moves  for selected piece:
 def check_moves_valid():
