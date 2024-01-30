@@ -201,6 +201,39 @@ def check_knight(position, colour):
 # valid bishop moves 
 def check_bishop(position, colour):
     moves_list =[]
+    if colour  == 'white':
+        opponent_list = black_location
+        ally_list = white_location
+    else:
+        opponent_list = white_location
+        ally_list = black_location
+    for i in range(4): #up-right, down- right, up-left, down-left
+        path = True
+        chain = 1
+        if i == 0:
+            x = 1
+            y = -1
+        elif i == 1:
+            x = -1
+            y = -1
+        elif i == 2:
+            x = 1
+            y = 1
+        else:
+            x = -1
+            y = 1
+        while path:
+            if(position[0] + (chain * x), position[1] + (chain * y))  not in ally_list and \
+                0 <= position[0] + (chain * x) <= 7 and 0 <= position[1] + (chain * y) <= 7:
+                moves_list.append((position[0] + (chain * x), position[1] + (chain * y)))
+                if (position[0] + (chain * x), position[1] + (chain * y)) in opponent_list:
+                    path = False
+                chain += 1
+            else:
+                path = False
+    return moves_list
+
+
 
 #valid rook moves
 def check_rook(position, colour):
