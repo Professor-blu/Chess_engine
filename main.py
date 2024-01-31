@@ -163,9 +163,9 @@ def check_pawn(position, colour):
         if (position[0], position[1] + 1) not in white_location \
             and(position[0], position[1] + 1) not in black_location and position[1] < 7:
             moves_list.append((position[0], position[1] + 1))
-        if (position[0], position[1] + 2) not in white_location \
-            and(position[0], position[1] + 2) not in black_location and position[1] == 1:
-            moves_list.append((position[0], position[1] + 2))
+            if (position[0], position[1] + 2) not in white_location \
+                and(position[0], position[1] + 2) not in black_location and position[1] == 1:
+                moves_list.append((position[0], position[1] + 2))
         if (position[0] + 1, position[1] + 1) in black_location:
             moves_list.append((position[0] + 1, position[1] + 1)) # attack vector
         if (position[0] - 1, position[1] + 1) in black_location:
@@ -174,9 +174,9 @@ def check_pawn(position, colour):
         if (position[0], position[1] - 1) not in white_location \
             and(position[0], position[1] - 1) not in black_location and position[1] > 0:
             moves_list.append((position[0], position[1] - 1))
-        if (position[0], position[1] - 2) not in white_location \
-            and(position[0], position[1] - 2) not in black_location and position[1] == 6:
-            moves_list.append((position[0], position[1] - 2))
+            if (position[0], position[1] - 2) not in white_location \
+                and(position[0], position[1] - 2) not in black_location and position[1] == 6:
+                moves_list.append((position[0], position[1] - 2))
         if (position[0] + 1, position[1] - 1) in white_location:
             moves_list.append((position[0] + 1, position[1] - 1)) # attack vector
         if (position[0] - 1, position[1] - 1) in white_location:
@@ -356,6 +356,21 @@ def draw_game_over():
     screen.blit(font.render(f'{winner} won the game!', True, 'white'), (210, 210))
     screen.blit(font.render(f'Press ENTER to Restart!', True, 'white'), (210, 240))
 
+#check en passant
+def check_en_passant(old_coords, new_coords):
+    if turn_step <= 1:
+        index = white_location.index(old_coords)
+        ep_coords = (new_coords[0], new_coords[1] -1)
+        piece = white_pieces[index]
+    else:
+        index = black_location.index(old_coords)
+        ep_coords = (new_coords[0], new_coords[1] + 1)
+        piece = black_pieces[index]
+    if piece == 'pawn' and abs(old_coords[1] - new_coords[1]) > 1:
+        pass
+    else:
+        ep_coords(100, 100)
+    return ep_coords
 
 # main game loop C.N.C
 black_options = check_options(black_pieces, black_location, 'black')
