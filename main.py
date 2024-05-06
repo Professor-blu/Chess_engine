@@ -76,14 +76,21 @@ white_pawn_small = pygame.transform.scale(white_pawn, (35, 35)) #scales down paw
 #operational lists
 white_images = [white_king, white_queen, white_rook, white_bishop, white_knight, white_pawn]
 white_images_small = [white_king_small, white_queen_small, white_rook_small, white_bishop_small, white_knight_small, white_pawn_small]
+white_promotions = ['knight', 'bishop', 'rook', 'queen'] 
 black_images = [black_king, black_queen, black_rook, black_bishop, black_knight, black_pawn]
 black_images_small = [black_king_small, black_queen_small, black_rook_small, black_bishop_small, black_knight_small, black_pawn_small]
+black_promotions = ['knight', 'bishop', 'rook', 'queen']
 piece_list = ['king', 'queen', 'rook', 'bishop', 'knight', 'pawn']
 
 #check variables flashing counter
 counter = 0
 winner = ''
 game_over = False
+white_ep = (1000, 1000)
+black_ep = (1000, 1000)
+white_promote = False
+black_promote = False
+promote_index = 1000
 
 # Drawing chess board
 def draw_board():
@@ -170,6 +177,11 @@ def check_pawn(position, colour):
             moves_list.append((position[0] + 1, position[1] + 1)) # attack vector
         if (position[0] - 1, position[1] + 1) in black_location:
             moves_list.append((position[0] -  1, position[1] + 1))
+        #check en passant
+            if (position[0] + 1, position[1] + 1) == black_ep:
+                moves_list.append((position[0] + 1, position[1] + 1)) # attack vector
+            if (position[0] - 1, position[1] + 1) == black_ep:
+                moves_list.append((position[0] -  1, position[1] + 1))
     else:
         if (position[0], position[1] - 1) not in white_location \
             and(position[0], position[1] - 1) not in black_location and position[1] > 0:
@@ -181,6 +193,11 @@ def check_pawn(position, colour):
             moves_list.append((position[0] + 1, position[1] - 1)) # attack vector
         if (position[0] - 1, position[1] - 1) in white_location:
             moves_list.append((position[0] -  1, position[1] - 1))
+        #check en passant
+            if (position[0] + 1, position[1] - 1) == white_ep:
+                moves_list.append((position[0] + 1, position[1] - 1)) # attack vector
+            if (position[0] - 1, position[1] - 1) == white_ep:
+                moves_list.append((position[0] -  1, position[1] - 1))
     return moves_list
 
 #valid knight moves
@@ -369,8 +386,47 @@ def check_en_passant(old_coords, new_coords):
     if piece == 'pawn' and abs(old_coords[1] - new_coords[1]) > 1:
         pass
     else:
-        ep_coords(100, 100)
-    return ep_coords
+        return ep_coords
+    
+#Pawn Promotion
+def pawn_promotion():
+    pawn_index =[]
+    white_promotion = False
+    black_promotion = False
+    promoted_index = 1000
+    for i in range(len(white_pieces)):
+        if white_pieces[i] == 'pawn':
+            pawn_index.append(i)
+    for i in range(len(pawn_index)):
+        if white_location[pawn_index[i]][1] == 7:
+            white_promotion == True
+            promoted_index == pawn_index[i]
+    pawn_index = []
+    for i in range(len(black_pieces)):
+        if white_pieces[i] == 'pawn':
+            pawn_index.append(i)
+    for i in range(len(pawn_index)):
+        if black_location[pawn_index[i]][1] == 0:
+            black_promotion == True
+            promoted_index == pawn_index[i]
+
+    return black_promotion, white_promotion, promoted_index
+
+def draw_promotion():
+    pygame.draw.rect(screen, 'dark grey', [800, 0, 200, 420])
+    if white_promote:
+        color = 'white'
+        for i in range(len(white_promotions)):
+            piece = white_promotions[i]
+            index = piece_list.index(piece)
+            screen.blit(white_images[index], (860, 5 + 100 * i))
+    elif black_promote:
+        color = 'black'
+        for i in range(len(white_promotions)):
+            piece = black_promotions[i]
+            index = piece_list.index(piece)
+            screen.blit(black_images[index], (860, 5 + 100 * i))
+    pygame.draw.rect(screen, color, [800, 0, 200, 420], 8)
 
 # main game loop C.N.C
 black_options = check_options(black_pieces, black_location, 'black')
@@ -387,6 +443,14 @@ while run:
     draw_pieces()
     draw_captured_pieces()
     draw_check()
+    
+    #Handling pawn promotion
+    if not game_over:
+        white_promote, black_promote, promote_index = pawn_promotion()
+        if white_promote or black_promote:
+            draw_promotion()
+            #select_pawn_promotion()
+
     if selection != 1000:
         moves_valid = check_moves_valid()
         draw_valid(moves_valid)
@@ -407,6 +471,7 @@ while run:
                     if turn_step == 0:
                         turn_step = 1
                 if click_coords in moves_valid and selection != 1000:
+                    white_ep = check_en_passant(white_location[selection], click_coords)
                     white_location[selection] = click_coords
                     if click_coords in black_location:
                         black_piece = black_location.index(click_coords)
@@ -415,6 +480,13 @@ while run:
                             winner = 'white'
                         black_pieces.pop(black_piece)
                         black_location.pop(black_piece)
+                    
+                    if click_coords == black_ep:
+                        black_piece = black_location.index((black_ep[0], black_ep[1] - 1))
+                        captured_pieces_white.append(black_pieces[black_piece])
+                        black_pieces.pop(black_piece)
+                        black_location.pop(black_piece)
+                    
                     black_options = check_options(black_pieces, black_location, 'black')
                     white_options = check_options(white_pieces, white_location, 'white')
                     turn_step = 2
@@ -428,12 +500,19 @@ while run:
                     if turn_step == 2:
                         turn_step = 3
                 if click_coords in moves_valid and selection != 1000:
+                    black_ep = check_en_passant(black_location[selection], click_coords)
                     black_location[selection] = click_coords
                     if click_coords in white_location:
                         white_piece = white_location.index(click_coords)
                         captured_pieces_black.append(white_pieces[white_piece])
                         if white_pieces[white_piece] == 'king':
                             winner = 'black'
+                        white_pieces.pop(white_piece)
+                        white_location.pop(white_piece)
+                    
+                    if click_coords == white_ep:
+                        white_piece = white_location.index((white_ep[0], white_ep[1] + 1))
+                        captured_pieces_black.append(white_pieces[white_piece])
                         white_pieces.pop(white_piece)
                         white_location.pop(white_piece)
                     black_options = check_options(black_pieces, black_location, 'black')
